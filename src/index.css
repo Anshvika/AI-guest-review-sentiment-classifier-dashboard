@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-body bg-cream text-forest-950 dark:bg-forest-950 dark:text-cream antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+
+  ::selection {
+    @apply bg-forest-300 text-forest-950;
+  }
+
+  :focus-visible {
+    outline: 2px solid #2c7d54;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  .dark :focus-visible {
+    outline-color: #74b890;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-forest-200 dark:bg-forest-700 rounded-full;
+  }
+  .skeleton-shimmer {
+    background-image: linear-gradient(
+      90deg,
+      rgba(15, 61, 46, 0.06) 25%,
+      rgba(15, 61, 46, 0.14) 37%,
+      rgba(15, 61, 46, 0.06) 63%
+    );
+    background-size: 400% 100%;
+  }
+  .dark .skeleton-shimmer {
+    background-image: linear-gradient(
+      90deg,
+      rgba(247, 245, 240, 0.06) 25%,
+      rgba(247, 245, 240, 0.14) 37%,
+      rgba(247, 245, 240, 0.06) 63%
+    );
+    background-size: 400% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
