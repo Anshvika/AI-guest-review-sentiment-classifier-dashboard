@@ -1,40 +1,57 @@
-# AI-guest-review-sentiment-classifier-dashboard
-📝 Description 
+AI-guest-review-sentiment-classifier-dashboard
+📝 Description
 
-An AI-powered analytics dashboard that automatically ingests, classifies, and visualizes the sentiment of guest reviews to surface actionable hospitality insights.
+An AI-powered analytics dashboard that automatically ingests, classifies, and visualizes the sentiment of guest reviews to surface actionable hospitality insights. Built to help property managers understand customer feedback trends in real-time.
 
 🛠️ Tech Stack
+Frontend Dashboard: React, Vite, Tailwind CSS, TypeScript
 
-Frontend Dashboard: React, TypeScript, Next.js, Tailwind CSS
-
-Backend:Node.js
+Backend: Node.js, Express
 
 AI Engine: Anthropic AI Claude API
 
 Database: MongoDB
 
-🚀 Getting Started (Frontend)
-
+🚀 Getting Started
 Prerequisites
-
-Ensure you have Node.js installed on your computer.
+Ensure you have Node.js (v18 or higher) installed on your system.
 
 Installation
+Clone the repository:
 
-1. Open your terminal and jump into the user interface tracking folder: cd Frontend
+Bash
+git clone https://github.com/Anshvika/AI-guest-review-sentiment-classifier-dashboard.git
+cd AI-guest-review-sentiment-classifier-dashboard
+Navigate to the project folder:
 
-2. Install the required package architecture scripts: npm install
+Bash
+cd Frontend
+Install the required dependencies:
 
+Bash
+npm install
 Running the Application
+To start the development server:
 
-To boot up your local interface instance: npm start
+Bash
+npm run dev
+The application will launch in your browser at http://localhost:5173 (or the port specified in your terminal).
 
-The client portal will automatically launch right in your browser tab at http://localhost:3000.
+📅 Week 3 Updates
+Responsive Design: Implemented fully responsive UI layouts for mobile, tablet, and desktop viewports.
 
-🚀 Coming Soon
+Theme Persistence: Added localStorage integration to remember user theme preferences across sessions.
 
-GitHub Actions workflow setup for automated integration testing.
+Branding: Updated dashboard aesthetics to align with the "Trishul Analytics" identity.
 
-Production multi-tier cloud deployments targeting Vercel (Frontend Hosting) and Render (Backend Handling).
+🚀 Roadmap & Coming Soon
+[ ] CI/CD Pipeline: Implement GitHub Actions for automated integration testing.
 
-GitHub Actions workflow for automated testing and seamless deployment to Vercel (frontend) and Render (backend).
+[ ] Cloud Deployment: Production-ready multi-tier deployments:
+
+Frontend: Vercel
+
+Backend: Render
+
+💡 Understanding the Architecture
+This project uses a clean separation between the frontend presentation layer and the AI-driven backend services.
