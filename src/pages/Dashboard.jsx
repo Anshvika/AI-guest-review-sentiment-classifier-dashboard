@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect} from 'react'
 import { MessageCircle, ThumbsUp, ThumbsDown, Star, Search, TriangleAlert } from 'lucide-react'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
 import ReviewCard from '../components/ReviewCard.jsx'
 import { Input } from '../components/ui'
-import { REVIEWS, DASHBOARD_METRICS, HOMESTAYS } from '../data/mockData.js'
+import { getAllReviews, getDashboardStats } from '../api/reviewService'
 
 const SENTIMENT_FILTERS = [
   { value: 'all', label: 'All' },
@@ -12,6 +12,7 @@ const SENTIMENT_FILTERS = [
   { value: 'neutral', label: 'Neutral' },
   { value: 'negative', label: 'Negative' },
 ]
+
 
 function MetricCard({ icon: Icon, label, value, accent }) {
   return (
@@ -33,18 +34,43 @@ export default function Dashboard() {
   const [sentimentFilter, setSentimentFilter] = useState('all')
   const [homestayFilter, setHomestayFilter] = useState('all')
   const [search, setSearch] = useState('')
+  const [reviews, setReviews] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({})
+  const [weeklyTrend, setWeeklyTrend] = useState([])
+  const [topAlerts, setTopAlerts] = useState([])
+
+  useEffect(() => {
+    async function fetchReviews() {
+      try {
+        const reviewsResponse = await getAllReviews()
+        setReviews(reviewsResponse.data.data)
+
+        const statsResponse = await getDashboardStats()
+        setStats(statsResponse.data.data)
+      } catch (error) {
+        console.error("Error fetching reviews:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchReviews()
+  }, [])
 
   const filteredReviews = useMemo(() => {
-    return REVIEWS.filter((r) => {
-      const matchesSentiment = sentimentFilter === 'all' || r.sentiment === sentimentFilter
-      const matchesHomestay = homestayFilter === 'all' || r.homestay === homestayFilter
+    return reviews.filter((r) => {
+      const matchesSentiment =
+  sentimentFilter === 'all' ||
+  r.sentiment?.trim().toLowerCase() === sentimentFilter
+      const matchesHomestay = homestayFilter === 'all' || r.hotel === homestayFilter
       const matchesSearch =
         search.trim() === '' ||
         r.guestName.toLowerCase().includes(search.toLowerCase()) ||
-        r.excerpt.toLowerCase().includes(search.toLowerCase())
+        r.review.toLowerCase().includes(search.toLowerCase())
       return matchesSentiment && matchesHomestay && matchesSearch
     })
-  }, [sentimentFilter, homestayFilter, search])
+  }, [reviews, sentimentFilter, homestayFilter, search])
 
   return (
     <div className="min-h-screen flex flex-col bg-cream dark:bg-forest-950">
@@ -71,25 +97,25 @@ export default function Dashboard() {
           <MetricCard
             icon={MessageCircle}
             label="Total reviews"
-            value={DASHBOARD_METRICS.totalReviews}
+            value={stats?.totalReviews || 0}
             accent="bg-forest-100 dark:bg-forest-800 text-forest-700 dark:text-forest-300"
           />
           <MetricCard
             icon={ThumbsUp}
             label="Positive sentiment"
-            value={`${DASHBOARD_METRICS.positivePercent}%`}
+            value={`${stats ? Math.round((stats.positiveReviews / stats.totalReviews) * 100) : 0}%`}
             accent="bg-forest-100 dark:bg-forest-800 text-forest-600 dark:text-forest-300"
           />
           <MetricCard
             icon={ThumbsDown}
             label="Negative sentiment"
-            value={`${DASHBOARD_METRICS.negativePercent}%`}
+            value={`${stats ? Math.round((stats.negativeReviews / stats.totalReviews) * 100) : 0}%`}
             accent="bg-clay-100 dark:bg-clay-900/40 text-clay-600 dark:text-clay-300"
           />
           <MetricCard
             icon={Star}
             label="Average rating"
-            value={DASHBOARD_METRICS.avgRating}
+            value={stats?.averageRating || 0}
             accent="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
           />
         </div>
@@ -101,7 +127,7 @@ export default function Dashboard() {
               Sentiment trend, last 4 weeks
             </h2>
             <div className="flex items-end gap-3 sm:gap-4 h-44">
-              {DASHBOARD_METRICS.weeklyTrend.map((week) => {
+              {weeklyTrend.map((week) => {
                 const total = week.positive + week.neutral + week.negative
                 return (
                   <div key={week.week} className="flex-1 flex flex-col items-center gap-2 h-full">
@@ -143,7 +169,7 @@ export default function Dashboard() {
               Top alerts
             </h2>
             <div className="flex flex-col gap-4">
-              {DASHBOARD_METRICS.topAlerts.map((alert) => (
+              {topAlerts.map((alert) => (
                 <div key={alert.id} className="flex items-start justify-between gap-3 border-b border-forest-50 dark:border-forest-800/50 pb-2 last:border-none last:pb-0">
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-forest-900 dark:text-cream truncate">
@@ -180,7 +206,7 @@ export default function Dashboard() {
                 className="w-full sm:w-auto min-w-[180px] rounded-xl border border-forest-200 dark:border-forest-700 bg-white dark:bg-forest-900 px-3.5 py-2.5 text-sm text-forest-950 dark:text-cream focus:outline-none focus:ring-2 focus:ring-forest-500 transition-colors"
               >
                 <option value="all">All properties</option>
-                {HOMESTAYS.map((h) => (
+                {[new Set(reviews.map(r => r.hotel))].map((h) => (
                   <option key={h} value={h}>
                     {h}
                   </option>
@@ -216,7 +242,7 @@ export default function Dashboard() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {filteredReviews.map((review) => (
-                <ReviewCard key={review.id} review={review} />
+               <ReviewCard key={review.id || review._id} review={review}/>
               ))}
             </div>
           )}

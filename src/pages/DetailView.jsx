@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useState ,useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Star, Wand2, Copy, Check } from 'lucide-react'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
 import { Button, SentimentPulse, Spinner } from '../components/ui'
 import { useToast } from '../context/ToastContext.jsx'
-import { getReviewById } from '../data/mockData.js'
+import { getReviewById } from '../api/reviewService'
+
 
 const TAG_LABELS = {
   cleanliness: 'Cleanliness',
@@ -24,7 +25,30 @@ function tagColor(score) {
 export default function DetailView() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const review = getReviewById(id)
+  const [review, setReview] = useState({})
+  const [loading, setLoading] = useState(true)
+
+useEffect(() => {
+  async function fetchReview(){
+    try{
+      const response = await getReviewById(id)
+
+      console.log("API REVIEW:", response.data)
+
+      setReview(response.data.data || response.data)
+
+    } catch(error){
+      console.log(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if(id){
+    fetchReview()
+  }
+
+},[id])
   const { showToast } = useToast()
 
   const [draft, setDraft] = useState('')
@@ -53,11 +77,11 @@ export default function DetailView() {
     setGenerating(true)
     setDraft('')
     const responseBank = {
-      positive: `Dear ${review.guestName},\n\nThank you so much for the kind words about your stay at ${review.homestay}. We're delighted the little details — from the garden breakfast to the warm welcome — made your trip memorable. We'd love to host you again soon!\n\nWarmly,\nThe ${review.homestay} Team`,
-      negative: `Dear ${review.guestName},\n\nThank you for taking the time to share this, and I'm sorry your stay at ${review.homestay} fell short of what we promise our guests. We're addressing the issues you raised directly with our team this week. I'd welcome the chance to make it right on a future visit.\n\nSincerely,\nThe ${review.homestay} Team`,
-      neutral: `Dear ${review.guestName},\n\nThank you for your honest feedback on your stay at ${review.homestay}. We're glad the essentials worked well for you, and we're taking note of where we can add a little more polish. Hope to welcome you back soon.\n\nBest,\nThe ${review.homestay} Team`,
+      positive: `Dear ${review.guestName},\n\nThank you so much for the kind words about your stay at ${review.hotel}. We're delighted the little details — from the garden breakfast to the warm welcome — made your trip memorable. We'd love to host you again soon!\n\nWarmly,\nThe ${review.hotel} Team`,
+      negative: `Dear ${review.guestName},\n\nThank you for taking the time to share this, and I'm sorry your stay at ${review.hotel} fell short of what we promise our guests. We're addressing the issues you raised directly with our team this week. I'd welcome the chance to make it right on a future visit.\n\nSincerely,\nThe ${review.hotel} Team`,
+      neutral: `Dear ${review.guestName},\n\nThank you for your honest feedback on your stay at ${review.hotel}. We're glad the essentials worked well for you, and we're taking note of where we can add a little more polish. Hope to welcome you back soon.\n\nBest,\nThe ${review.hotel} Team`,
     }
-    const fullText = responseBank[review.sentiment]
+   const fullText = responseBank[review.sentiment?.trim().toLowerCase() || "neutral"]
     let i = 0
     const interval = setInterval(() => {
       i += 3
@@ -96,10 +120,10 @@ export default function DetailView() {
                     {review.guestName}
                   </h1>
                   <p className="text-sm text-forest-500 dark:text-forest-400">
-                    {review.homestay} · {new Date(review.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    {review.hotel} · {new Date(review.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
                   </p>
                 </div>
-                <SentimentPulse sentiment={review.sentiment} />
+                <SentimentPulse sentiment={review.sentiment?.trim().toLowerCase()} />
               </div>
               <div className="flex items-center gap-0.5 mb-4">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -113,11 +137,11 @@ export default function DetailView() {
                   />
                 ))}
                 <span className="ml-2 text-sm text-forest-500 dark:text-forest-400">
-                  {Math.round(review.confidence * 100)}% classification confidence
+                {review.rating * 20}% classification confidence
                 </span>
               </div>
               <p className="text-forest-800 dark:text-forest-200 leading-relaxed">
-                {review.fullText}
+                {review.review}
               </p>
             </div>
 
@@ -166,7 +190,14 @@ export default function DetailView() {
               Emotional tag breakdown
             </h2>
             <div className="flex flex-col gap-4">
-              {Object.entries(review.tags).map(([key, score]) => (
+           { Object.entries({
+                cleanliness: review.rating / 5,
+                checkIn: review.rating / 5,
+                amenities: review.rating / 5,
+                hospitality: review.rating / 5,
+                valueForMoney: review.rating / 5
+              }).map(([key, score]) =>(
+
                 <div key={key}>
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-sm text-forest-700 dark:text-forest-300">

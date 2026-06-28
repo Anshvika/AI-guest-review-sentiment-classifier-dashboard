@@ -20,8 +20,12 @@ const SENTIMENT_CONFIG = {
 }
 
 export default function SentimentPulse({ sentiment = 'neutral', showLabel = true, className = '' }) {
-  const config = SENTIMENT_CONFIG[sentiment] || SENTIMENT_CONFIG.neutral
 
+  const normalizedSentiment = sentiment?.toLowerCase()
+
+  const config =
+    SENTIMENT_CONFIG[normalizedSentiment] || SENTIMENT_CONFIG.neutral
+    
   return (
     <span className={`inline-flex items-center gap-1.5 ${className}`}>
       <span className="relative flex h-2.5 w-2.5">
