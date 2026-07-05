@@ -4,7 +4,12 @@ import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
 import { Input, Button, Modal } from '../components/ui'
 import { useToast } from '../context/ToastContext.jsx'
-import { HOMESTAYS } from '../data/mockData.js'
+
+const HOMESTAYS = [
+  "Trishul Homestay",
+  "Hill View Cottage",
+  "Lake View Retreat",
+];
 
 export default function Settings() {
   const { showToast } = useToast()

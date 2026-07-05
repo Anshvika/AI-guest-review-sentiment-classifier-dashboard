@@ -1,9 +1,10 @@
-import { BrainCircuit, BellRing, Wand2, BarChart3 } from 'lucide-react'
-import Navbar from '../components/Navbar.jsx'
-import Hero from '../components/Hero.jsx'
-import Footer from '../components/Footer.jsx'
-import ReviewCard from '../components/ReviewCard.jsx'
-import { REVIEWS } from '../data/mockData.js'
+import { useEffect, useState } from "react";
+import { BrainCircuit, BellRing, Wand2, BarChart3 } from "lucide-react";
+import Navbar from "../components/Navbar.jsx";
+import Hero from "../components/Hero.jsx";
+import Footer from "../components/Footer.jsx";
+import ReviewCard from "../components/ReviewCard.jsx";
+import { getAllReviews } from "../api/reviewService";
 
 const FEATURES = [
   {
@@ -29,7 +30,23 @@ const FEATURES = [
 ]
 
 export default function Home() {
-  const sampleReviews = REVIEWS.slice(0, 6)
+    const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      const fetchReviews = async () => {
+        try {
+          const response = await getAllReviews();
+          setReviews(response.data.data);
+        } catch (error) {
+          console.error("Error fetching reviews:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchReviews();
+    }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-cream dark:bg-forest-950">
@@ -92,16 +109,34 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {sampleReviews.map((review) => (
-                <ReviewCard key={review.id} review={review} />
-              ))}
+              {loading ? (
+                <p>Loading reviews...</p>
+              ) : reviews.length === 0 ? (
+                <p>No reviews available.</p>
+              ) : (
+                reviews.slice(0, 6).map((review) => (
+                  <ReviewCard
+                    key={review._id}
+                    review={{
+                      ...review,
+                      id: review._id,
+                      homestay: review.hotel,
+                      excerpt:
+                        (review.review || "").length > 120
+                          ? (review.review || "").substring(0, 120) + "..."
+                          : (review.review || ""),
+                      confidence: 0.95,
+                      tags: {},
+                    }}
+                  />
+                ))
+              )}
             </div>
           </div>
         </section>
       </main>
       <Footer />
     </div>
-  )
+  );
 }

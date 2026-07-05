@@ -32,13 +32,10 @@ useEffect(() => {
   async function fetchReview(){
     try{
       const response = await getReviewById(id)
-
-      console.log("API REVIEW:", response.data)
-
       setReview(response.data.data || response.data)
 
     } catch(error){
-      console.log(error)
+      console.log("Error fetching review:", error);
     } finally {
       setLoading(false)
     }
@@ -54,8 +51,16 @@ useEffect(() => {
   const [draft, setDraft] = useState('')
   const [generating, setGenerating] = useState(false)
   const [copied, setCopied] = useState(false)
+  const score = (review.rating || 0) / 5;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
 
-  if (!review) {
+  if (!loading &&!review._id) {
     return (
       <div className="min-h-screen flex flex-col bg-cream dark:bg-forest-950">
         <Navbar />
@@ -81,7 +86,9 @@ useEffect(() => {
       negative: `Dear ${review.guestName},\n\nThank you for taking the time to share this, and I'm sorry your stay at ${review.hotel} fell short of what we promise our guests. We're addressing the issues you raised directly with our team this week. I'd welcome the chance to make it right on a future visit.\n\nSincerely,\nThe ${review.hotel} Team`,
       neutral: `Dear ${review.guestName},\n\nThank you for your honest feedback on your stay at ${review.hotel}. We're glad the essentials worked well for you, and we're taking note of where we can add a little more polish. Hope to welcome you back soon.\n\nBest,\nThe ${review.hotel} Team`,
     }
-   const fullText = responseBank[review.sentiment?.trim().toLowerCase() || "neutral"]
+    const sentiment =
+    (review.sentiment || "neutral").trim().toLowerCase();
+    const fullText = responseBank[sentiment] || responseBank.neutral;
     let i = 0
     const interval = setInterval(() => {
       i += 3
@@ -120,7 +127,17 @@ useEffect(() => {
                     {review.guestName}
                   </h1>
                   <p className="text-sm text-forest-500 dark:text-forest-400">
-                    {review.hotel} · {new Date(review.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+                   {review.hotel}{" "}
+                    {review.date && (
+                      <>
+                        ·{" "}
+                        {new Date(review.date).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </>
+                    )}
                   </p>
                 </div>
                 <SentimentPulse sentiment={review.sentiment?.trim().toLowerCase()} />
@@ -137,7 +154,7 @@ useEffect(() => {
                   />
                 ))}
                 <span className="ml-2 text-sm text-forest-500 dark:text-forest-400">
-                {review.rating * 20}% classification confidence
+                {review.rating ? `${review.rating} ★ Guest Rating` : "No rating"}
                 </span>
               </div>
               <p className="text-forest-800 dark:text-forest-200 leading-relaxed">
@@ -191,12 +208,12 @@ useEffect(() => {
             </h2>
             <div className="flex flex-col gap-4">
            { Object.entries({
-                cleanliness: review.rating / 5,
-                checkIn: review.rating / 5,
-                amenities: review.rating / 5,
-                hospitality: review.rating / 5,
-                valueForMoney: review.rating / 5
-              }).map(([key, score]) =>(
+              cleanliness: score,
+              checkIn: score,
+              amenities: score,
+              hospitality: score,
+              valueForMoney: score,
+            }).map(([key, score]) =>(
 
                 <div key={key}>
                   <div className="flex items-center justify-between mb-1.5">
