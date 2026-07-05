@@ -1,48 +1,69 @@
-const { reviews } = require("../data/reviews");
+const Review = require("../models/Review");
 
 // GET /api/dashboard/stats
 
 async function getDashboardStats(req, res, next) {
-
     try {
 
-        const positive = reviews.filter(r => r.sentiment === "Positive").length;
-        const neutral = reviews.filter(r => r.sentiment === "Neutral").length;
-        const negative = reviews.filter(r => r.sentiment === "Negative").length;
+        // Total reviews
+        const totalReviews = await Review.countDocuments();
+
+        // Sentiment counts
+        const positiveReviews = await Review.countDocuments({
+            sentiment: "Positive"
+        });
+
+        const neutralReviews = await Review.countDocuments({
+            sentiment: "Neutral"
+        });
+
+        const negativeReviews = await Review.countDocuments({
+            sentiment: "Negative"
+        });
+
+        // Average Rating
+        const reviews = await Review.find({}, "rating");
 
         const averageRating =
-            reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+            reviews.length > 0
+                ? reviews.reduce((sum, review) => sum + (review.rating || 0), 0) / reviews.length
+                : 0;
+
+        // Percentages
+        const positivePercent =
+            totalReviews > 0
+                ? Math.round((positiveReviews / totalReviews) * 100)
+                : 0;
+
+        const neutralPercent =
+            totalReviews > 0
+                ? Math.round((neutralReviews / totalReviews) * 100)
+                : 0;
+
+        const negativePercent =
+            totalReviews > 0
+                ? Math.round((negativeReviews / totalReviews) * 100)
+                : 0;
 
         res.status(200).json({
-
             success: true,
-
             data: {
-
-                totalReviews: reviews.length,
-
-                positiveReviews: positive,
-
-                neutralReviews: neutral,
-
-                negativeReviews: negative,
-
+                totalReviews,
+                positiveReviews,
+                neutralReviews,
+                negativeReviews,
+                positivePercent,
+                neutralPercent,
+                negativePercent,
                 averageRating: Number(averageRating.toFixed(1))
-
             }
-
         });
 
     } catch (err) {
-
         next(err);
-
     }
-
 }
 
 module.exports = {
-
     getDashboardStats
-
 };

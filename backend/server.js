@@ -1,7 +1,7 @@
 require('dotenv').config();
-
 const express = require('express');
 const cors = require('cors');
+const connectDB = require('./config/db');
 const corsOptions= require("./config/corsConfig");
 const reviewRoutes = require('./routes/reviewRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
@@ -10,13 +10,10 @@ const notFound =require("./middleware/notFound");
 const {errorHandler }= require('./middleware/errorHandler');
 
 const app = express();
+connectDB();
+app.use(cors(corsOptions)); 
+app.use(express.json()); 
 
-// --- Global Middleware ---
-app.use(cors(corsOptions)); // Allows the React frontend (different origin/port) to call this API.
-app.use(express.json()); // Parses incoming JSON request bodies into req.body.
-
-// --- Health check / root route ---
-// Handy for quickly confirming the server is alive in a browser or curl.
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
@@ -35,12 +32,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/sentiment', sentimentRoutes);
 
 // --- 404 handler ---
-// Catches any request that didn't match a route above.
 app.use(notFound);
-
-// --- Centralized error handler ---
-// MUST be registered last. Any next(err) call or thrown error inside an
-// async route handler ends up here.
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

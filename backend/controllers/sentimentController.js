@@ -1,4 +1,4 @@
-const { reviews } = require("../data/reviews");
+const Review = require("../models/Review");
 const ApiError = require("../middleware/ApiError");
 
 const VALID_SENTIMENTS = [
@@ -18,11 +18,13 @@ async function searchReviews(req, res, next) {
         if (!q)
             throw new ApiError(400, "Search query required");
 
-        const result = reviews.filter(r =>
-            r.guestName.toLowerCase().includes(q.toLowerCase()) ||
-            r.hotel.toLowerCase().includes(q.toLowerCase()) ||
-            r.review.toLowerCase().includes(q.toLowerCase())
-        );
+        const result = await Review.find({
+            $or: [
+                { guestName: { $regex: q, $options: "i" } },
+                { hotel: { $regex: q, $options: "i" } },
+                { review: { $regex: q, $options: "i" } }
+            ]
+        });
 
         res.status(200).json({
 
@@ -53,9 +55,9 @@ async function getReviewsBySentiment(req, res, next) {
         if (!VALID_SENTIMENTS.includes(sentiment))
             throw new ApiError(400, "Invalid Sentiment");
 
-        const result = reviews.filter(
-            r => r.sentiment === sentiment
-        );
+        const result = await Review.find({
+            sentiment: sentiment
+        });
 
         res.status(200).json({
 
@@ -77,14 +79,14 @@ async function getReviewsBySentiment(req, res, next) {
 
 async function getSentimentSummary(req, res, next) {
     try {
-        const positive = reviews.filter(r => r.sentiment === "Positive").length;
-        const neutral = reviews.filter(r => r.sentiment === "Neutral").length;
-        const negative = reviews.filter(r => r.sentiment === "Negative").length;
+        const positive = await Review.countDocuments({ sentiment: "Positive" });
+        const neutral = await Review.countDocuments({ sentiment: "Neutral" });
+        const negative = await Review.countDocuments({ sentiment: "Negative" });
 
         res.status(200).json({
             success: true,
             data: {
-                totalReviews: reviews.length,
+                totalReviews: positive + neutral + negative,
                 positiveReviews: positive,
                 neutralReviews: neutral,
                 negativeReviews: negative

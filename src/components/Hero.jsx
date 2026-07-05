@@ -1,9 +1,39 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowRight, MessageSquareHeart, TrendingUp, Sparkles } from 'lucide-react'
 import { Button } from './ui'
+import { useEffect, useState } from "react";
+import { getAllReviews , getDashboardStats } from "../api/reviewService";
 
 export default function Hero() {
   const navigate = useNavigate()
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalReviews: 0,
+    positivePercent: 0,
+  });
+
+ useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const reviewResponse = await getAllReviews();
+      console.log("API Response:", reviewResponse);
+      console.log("Reviews:", reviewResponse.data.data);
+      setReviews(reviewResponse.data.data);
+
+      const statsResponse = await getDashboardStats();
+      console.log("Stats Response:", statsResponse);
+      setStats(statsResponse.data.data);
+
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
 
   return (
     <section className="relative overflow-hidden bg-cream dark:bg-forest-950">
@@ -38,10 +68,10 @@ export default function Hero() {
           </div>
           <div className="mt-8 flex items-center gap-6 text-sm text-forest-600 dark:text-forest-400">
             <span className="flex items-center gap-1.5">
-              <TrendingUp className="w-4 h-4 text-forest-500" /> 248 reviews analyzed
+              <TrendingUp className="w-4 h-4 text-forest-500" /> {stats.totalReviews} reviews analyzed
             </span>
             <span className="flex items-center gap-1.5">
-              <MessageSquareHeart className="w-4 h-4 text-clay-500" /> 71% positive sentiment
+              <MessageSquareHeart className="w-4 h-4 text-clay-500" /> {stats.positivePercent}% positive sentiment
             </span>
           </div>
         </div>
@@ -57,32 +87,45 @@ export default function Hero() {
                 Updating
               </span>
             </div>
-            <div className="space-y-4">
-              {[
-                { name: 'Ananya S.', text: 'Felt like family from the moment we arrived…', sentiment: 'positive' },
-                { name: 'Rohan V.', text: 'Wi-Fi barely worked, check-in took an hour…', sentiment: 'negative' },
-                { name: 'Priya N.', text: 'Lovely quiet stay, hot water was spotty…', sentiment: 'neutral' },
-              ].map((item) => (
+          <div className="space-y-4">
+            {loading ? (
+              <p className="text-sm text-forest-500 dark:text-forest-400">
+                Loading reviews...
+              </p>
+            ) : reviews.length === 0 ? (
+              <p className="text-sm text-forest-500 dark:text-forest-400">
+                No reviews available.
+              </p>
+            ) : (
+              reviews.slice(0, 3).map((item) => (
                 <div
-                  key={item.name}
+                  key={item._id || item.id}
                   className="flex items-start gap-3 p-3 rounded-xl bg-cream dark:bg-forest-950/60 border border-forest-100 dark:border-forest-800"
                 >
                   <span
                     className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${
-                      item.sentiment === 'positive'
-                        ? 'bg-forest-500'
-                        : item.sentiment === 'negative'
-                          ? 'bg-clay-500'
-                          : 'bg-slate-400'
+                      (item.sentiment || "").toLowerCase() === "positive"
+                        ? "bg-forest-500"
+                        : (item.sentiment || "").toLowerCase() === "negative"
+                        ? "bg-clay-500"
+                        : "bg-slate-400"
                     }`}
                   />
                   <div>
-                    <p className="text-sm font-medium text-forest-900 dark:text-cream">{item.name}</p>
-                    <p className="text-sm text-forest-600 dark:text-forest-400">{item.text}</p>
+                    <p className="text-sm font-medium text-forest-900 dark:text-cream">
+                      {item.guestName}
+                    </p>
+
+                    <p className="text-sm text-forest-600 dark:text-forest-400">
+                      {(item.review || "").length > 80
+                        ? (item.review || "").substring(0, 80) + "..."
+                        : (item.review || "")}
+                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
+              ))
+            )}
+          </div>
           </div>
           <div className="absolute -bottom-4 -left-4 w-24 h-24 rounded-2xl bg-clay-400/20 dark:bg-clay-400/10 -z-10" />
         </div>

@@ -1,11 +1,12 @@
-const { reviews, getNextId } = require("../data/reviews");
+const Review = require("../models/Review");
 const ApiError = require("../middleware/ApiError");
 
-const VALID_SENTIMENTS = ["Positive", "Neutral", "Negative"];
+//const VALID_SENTIMENTS = ["Positive", "Neutral", "Negative"];
 
 // GET /api/reviews
 async function getAllReviews(req, res, next) {
     try {
+        const reviews = await Review.find();
         res.status(200).json({
             success: true,
             count: reviews.length,
@@ -19,16 +20,9 @@ async function getAllReviews(req, res, next) {
 // GET /api/reviews/:id
 async function getReviewById(req, res, next) {
     try {
-        const id = Number(req.params.id);
-
-        if (Number.isNaN(id))
-            throw new ApiError(400, "Invalid Review ID");
-
-        const review = reviews.find(r => r.id === id);
-
+        const review = await Review.findById(req.params.id);
         if (!review)
-            throw new ApiError(404, "Review not found");
-
+        throw new ApiError(404, "Review not found");
         res.status(200).json({
             success: true,
             data: review
@@ -52,17 +46,14 @@ async function createReview(req, res, next) {
             rating
         } = req.body;
 
-        const newReview = {
-            id: getNextId(),
+         const newReview = await Review.create({
             guestName,
             hotel,
             review,
             sentiment,
             rating,
-            date: new Date().toISOString().split("T")[0]
-        };
-
-        reviews.push(newReview);
+            date: new Date()
+        });
 
         res.status(201).json({
             success: true,
@@ -80,21 +71,21 @@ async function updateReview(req, res, next) {
 
     try {
 
-        const id = Number(req.params.id);
+    const updatedReview = await Review.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        { 
+            new: true,
+            runValidators: true
+         }
+    );
 
-        const index = reviews.findIndex(r => r.id === id);
-
-        if (index === -1)
-            throw new ApiError(404, "Review not found");
-
-        reviews[index] = {
-            ...reviews[index],
-            ...req.body
-        };
+if (!updatedReview)
+    throw new ApiError(404, "Review not found");
 
         res.status(200).json({
             success: true,
-            data: reviews[index]
+            data: updatedReview
         });
 
     } catch (err) {
@@ -105,24 +96,14 @@ async function updateReview(req, res, next) {
 
 // DELETE /api/reviews/:id
 async function deleteReview(req, res, next) {
-
-    try {
-
-        const id = Number(req.params.id);
-
-        const index = reviews.findIndex(r => r.id === id);
-
-        if (index === -1)
-            throw new ApiError(404, "Review not found");
-
-        reviews.splice(index, 1);
-
+try {
+    const deletedReview = await Review.findByIdAndDelete(req.params.id);
+    if (!deletedReview)
+        throw new ApiError(404, "Review not found");
         res.status(204).send();
-
     } catch (err) {
         next(err);
     }
-
 }
 
 module.exports = {

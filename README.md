@@ -2,76 +2,262 @@
 
 ## 📝 Description
 
-An AI-powered analytics dashboard that automatically ingests, classifies, and visualizes the sentiment of guest reviews to surface actionable hospitality insights. Built to help property managers understand customer feedback trends in real time.
+The AI Guest Review Sentiment Classifier Dashboard is a full-stack web application that helps hospitality businesses analyze customer feedback. It provides a centralized dashboard for viewing guest reviews, filtering them by sentiment, monitoring review statistics, and managing reviews through complete CRUD operations.
 
-## 🛠️ Tech Stack
+The application uses MongoDB Atlas as its cloud database and follows a modular MERN architecture. Future development will integrate an AI model to automatically classify the sentiment of guest reviews.
 
-- **Frontend:** React, Vite, Tailwind CSS
-  
-- **Backend:** Node.js, Express
-  
-- **Current Data Store:** In-memory JavaScript data (planned migration to MongoDB)
-  
-- **Future AI Integration:** Anthropic Claude API
+---
 
-## 🚀 Getting Started
+# ✨ Features
 
-### Prerequisites
+- View all guest reviews
+- Create, update and delete reviews
+- Search reviews by guest name, hotel or review text
+- Filter reviews by sentiment
+- Dashboard showing:
+  - Total Reviews
+  - Positive Reviews
+  - Neutral Reviews
+  - Negative Reviews
+  - Average Rating
+- REST API built with Express
+- MongoDB Atlas database integration using Mongoose
 
-- Node.js (v18 or higher)
-  
+---
+
+# 🛠 Tech Stack
+
+## Frontend
+
+- React.js
+- Vite
+- Tailwind CSS
+
+## Backend
+
+- Node.js
+- Express.js
+
+## Database
+
+- MongoDB Atlas
+- Mongoose ODM
+
+## Future AI Integration
+
+- Anthropic Claude API
+
+---
+
+# 📂 Project Structure
+
+```
+AI-guest-review-sentiment-classifier-dashboard
+│
+├── src
+│   ├── api
+│   ├── components
+│   ├── pages
+│   └── data
+│
+├── backend
+│   ├── config
+│   ├── controllers
+│   ├── middleware
+│   ├── models
+│   ├── routes
+│   ├── .env.example
+│   └── server.js
+│
+└── README.md
+```
+
+---
+
+# 🚀 Getting Started
+
+## Prerequisites
+
+- Node.js (v18+)
 - npm
+- MongoDB Atlas account
 
-### Installation
+---
 
-Clone the repository:
+## Clone Repository
 
+```bash
 git clone https://github.com/Anshvika/AI-guest-review-sentiment-classifier-dashboard.git
+```
 
-Navigate to the project:
-
+```bash
 cd AI-guest-review-sentiment-classifier-dashboard
+```
 
-Install frontend dependencies:
+---
 
-npm install
+# Backend Setup
 
-## ▶️ Running the Frontend
+Navigate to backend
 
-Start the frontend development server:
-
-npm start
-
-The frontend will be available at:
-
-http://localhost:5173
-
-## ▶️ Running the Backend Locally
-
-Navigate to the backend folder:
-
+```bash
 cd backend
+```
 
-Install backend dependencies:
+Install dependencies
 
+```bash
 npm install
+```
 
-Create a `.env` file in the backend folder with the following content:
+Create a `.env` file
 
+```env
 PORT=5000
 
-Start the backend server:
+MONGO_URI=your_mongodb_connection_string
+```
 
+Example
+
+```env
+PORT=5000
+
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/guest_reviews_db
+```
+
+Start backend
+
+```bash
 npm start
+```
 
-The backend API will be available at:
+Backend runs on
 
+```
 http://localhost:5000
+```
 
-You can verify the backend by opening:
+---
 
-http://localhost:5000/
+# Frontend Setup
 
-## 💡 Understanding the Architecture
+Open another terminal
 
-This project follows a modular architecture with a clear separation between the frontend presentation layer and the backend API services. The current backend uses in-memory JavaScript data for development and testing, with a planned migration to MongoDB and future integration with the Anthropic Claude API for AI-powered sentiment analysis.
+```bash
+cd frontend
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Run frontend
+
+```bash
+npm run dev
+```
+
+Frontend runs on
+
+```
+http://localhost:5173
+```
+
+---
+
+# REST API Endpoints
+
+## Reviews
+
+| Method | Endpoint |
+|---------|----------|
+| GET | /api/reviews |
+| GET | /api/reviews/:id |
+| POST | /api/reviews |
+| PUT | /api/reviews/:id |
+| DELETE | /api/reviews/:id |
+
+---
+
+## Dashboard
+
+| Method | Endpoint |
+|---------|----------|
+| GET | /api/dashboard/stats |
+
+---
+
+## Sentiment
+
+| Method | Endpoint |
+|---------|----------|
+| GET | /api/sentiment |
+| GET | /api/sentiment/search?q=value |
+| GET | /api/sentiment/:sentiment |
+
+---
+
+# Database
+
+This project uses **MongoDB Atlas** as the cloud database.
+
+### Why MongoDB?
+
+- Flexible document-based schema
+- Easy integration with Node.js
+- Scalable cloud database
+- Uses Mongoose ODM for validation and CRUD operations
+
+---
+
+# Database Schema
+
+## Review Collection
+
+| Field | Type |
+|-------|------|
+| guestName | String |
+| hotel | String |
+| review | String |
+| rating | Number |
+| sentiment | String |
+| date | Date |
+
+MongoDB automatically generates
+
+- _id
+- createdAt
+- updatedAt
+
+---
+
+# Architecture
+
+```
+React Frontend
+      │
+      │ REST API
+      ▼
+Express Server
+      │
+Controllers
+      │
+Mongoose Models
+      │
+MongoDB Atlas
+```
+
+---
+
+# Future Improvements
+
+- AI-powered sentiment prediction using Anthropic Claude API
+- Interactive analytics charts
+- User authentication
+- Admin dashboard
+- Review export functionality
+
+---
