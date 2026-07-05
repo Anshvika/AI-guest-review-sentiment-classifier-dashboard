@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect} from 'react'
 import { MessageCircle, ThumbsUp, ThumbsDown, Star, Search, TriangleAlert } from 'lucide-react'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
+import { Link } from "react-router-dom";
 import ReviewCard from '../components/ReviewCard.jsx'
 import { Input } from '../components/ui'
 import { getAllReviews, getDashboardStats } from '../api/reviewService'
@@ -188,9 +189,17 @@ export default function Dashboard() {
 
         {/* Filter Toolbar Controls */}
         <div className="mb-6">
-          <h2 className="font-display text-xl font-semibold text-forest-950 dark:text-cream mb-4">
-            Guest reviews
+          <div className="flex justify-between items-center mb-4">
+          <h2 className="font-display text-xl font-semibold text-forest-950 dark:text-cream">
+            Guest Reviews
           </h2>
+           <Link
+              to="/add-review"
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+            >
+              + Add Review
+            </Link>
+        </div>
           <div className="flex flex-col lg:flex-row gap-4 mb-6">
             <div className="flex flex-col sm:flex-row gap-3 flex-1">
               <Input
