@@ -8,7 +8,7 @@ The application uses MongoDB Atlas as its cloud database and follows a modular M
 
 ---
 
-# ✨ Features
+## ✨ Features
 
 - View all guest reviews
 - Create, update and delete reviews
@@ -25,58 +25,87 @@ The application uses MongoDB Atlas as its cloud database and follows a modular M
 
 ---
 
-# 🛠 Tech Stack
+## 🛠 Tech Stack
 
-## Frontend
+### Frontend
 
 - React.js
 - Vite
 - Tailwind CSS
 
-## Backend
+### Backend
 
 - Node.js
 - Express.js
 
-## Database
+### Database
 
 - MongoDB Atlas
 - Mongoose ODM
 
-## Future AI Integration
+### Future AI Integration
 
 - Anthropic Claude API
 
 ---
 
-# 📂 Project Structure
+## 📂 Project Structure
 
 ```
 AI-guest-review-sentiment-classifier-dashboard
 │
-├── src
-│   ├── api
-│   ├── components
-│   ├── pages
-│   └── data
-│
 ├── backend
 │   ├── config
+│   │   └── db.js
 │   ├── controllers
+│   │   └── reviewController.js
 │   ├── middleware
 │   ├── models
+│   │   └── Review.js
 │   ├── routes
+│   │   └── reviewRoutes.js
 │   ├── .env.example
-│   └── server.js
+│   ├── package.json
+│   ├── server.js
 │
+├── images
+│   └── W5_SchemaDiagram_TBI-26100853.png
+│
+├── public
+│
+├── src
+│   ├── api
+│   │   ├── api.js
+│   │   └── reviewService.js
+│   ├── components
+│   │   ├── ui
+│   │   ├── Footer.jsx
+│   │   ├── Navbar.jsx
+│   │   └── ReviewCard.jsx
+│   ├── context
+│   ├── data
+│   │   └── mockData.js
+│   ├── pages
+│   │   ├── Dashboard.jsx
+│   │   └── DetailView.jsx
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── index.css
+│
+├── package.json
+├── package-lock.json
+├── vite.config.js
+├── tailwind.config.js
+├── postcss.config.js
+├── .gitignore
 └── README.md
 ```
 
 ---
 
-# 🚀 Getting Started
+## 🚀 Getting Started
 
-## Prerequisites
+### Prerequisites
 
 - Node.js (v18+)
 - npm
@@ -84,7 +113,7 @@ AI-guest-review-sentiment-classifier-dashboard
 
 ---
 
-## Clone Repository
+### Clone Repository
 
 ```bash
 git clone https://github.com/Anshvika/AI-guest-review-sentiment-classifier-dashboard.git
@@ -96,7 +125,9 @@ cd AI-guest-review-sentiment-classifier-dashboard
 
 ---
 
-# Backend Setup
+## Backend Setup
+
+From the project root, navigate to the backend directory:
 
 Navigate to backend
 
@@ -140,13 +171,7 @@ http://localhost:5000
 
 ---
 
-# Frontend Setup
-
-Open another terminal
-
-```bash
-cd frontend
-```
+## Frontend Setup
 
 Install dependencies
 
@@ -168,9 +193,9 @@ http://localhost:5173
 
 ---
 
-# REST API Endpoints
+## REST API Endpoints
 
-## Reviews
+### Reviews
 
 | Method | Endpoint |
 |---------|----------|
@@ -182,7 +207,7 @@ http://localhost:5173
 
 ---
 
-## Dashboard
+### Dashboard
 
 | Method | Endpoint |
 |---------|----------|
@@ -190,7 +215,7 @@ http://localhost:5173
 
 ---
 
-## Sentiment
+### Sentiment
 
 | Method | Endpoint |
 |---------|----------|
@@ -200,7 +225,7 @@ http://localhost:5173
 
 ---
 
-# Database
+## Database
 
 This project uses **MongoDB Atlas** as the cloud database.
 
@@ -213,28 +238,13 @@ This project uses **MongoDB Atlas** as the cloud database.
 
 ---
 
-# Database Schema
+## Database Schema
 
-## Review Collection
+The application stores guest reviews in MongoDB collection.
 
-| Field | Type |
-|-------|------|
-| guestName | String |
-| hotel | String |
-| review | String |
-| rating | Number |
-| sentiment | String |
-| date | Date |
+![Database Schema](./images/W5_SchemaDiagram_TBI-26100853.png)
 
-MongoDB automatically generates
-
-- _id
-- createdAt
-- updatedAt
-
----
-
-# Architecture
+## Architecture
 
 ```
 React Frontend
@@ -252,7 +262,7 @@ MongoDB Atlas
 
 ---
 
-# Future Improvements
+## Future Improvements
 
 - AI-powered sentiment prediction using Anthropic Claude API
 - Interactive analytics charts
