@@ -1,10 +1,12 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Sprout, Mail, Lock, User } from 'lucide-react'
-import Navbar from '../components/Navbar.jsx'
-import Footer from '../components/Footer.jsx'
-import { Input, Button } from '../components/ui'
-import { useToast } from '../context/ToastContext.jsx'
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Sprout, Mail, Lock, User } from "lucide-react";
+import Navbar from "../components/Navbar.jsx";
+import Footer from "../components/Footer.jsx";
+import { Input, Button } from "../components/ui";
+import { useToast } from "../context/ToastContext.jsx";
+import { loginUser, registerUser } from "../api/reviewService";
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginSignup() {
   const [mode, setMode] = useState('login')
@@ -13,6 +15,8 @@ export default function LoginSignup() {
   const [loading, setLoading] = useState(false)
   const { showToast } = useToast()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams();
+  const { login } = useAuth()
 
   function updateField(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -30,19 +34,93 @@ export default function LoginSignup() {
     return Object.keys(next).length === 0
   }
 
-  function handleSubmit(e) {
-    e.preventDefault()
-    if (!validate()) return
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      showToast({
-        message: mode === 'login' ? 'Signed in successfully' : 'Account created successfully',
-        variant: 'success',
-      })
-      navigate('/dashboard')
-    }, 1100)
+useEffect(() => {
+  const token = searchParams.get("token");
+  const name = searchParams.get("name");
+  const email = searchParams.get("email");
+
+  if (token && name && email) {
+    login(
+      {
+        name,
+        email,
+      },
+      token
+    );
+
+    showToast({
+      message: "Google login successful",
+      variant: "success",
+    });
+
+    navigate("/dashboard", { replace: true });
   }
+}, [searchParams, login, navigate, showToast]);
+
+async function handleSubmit(e) {
+  e.preventDefault();
+
+  if (!validate()) return;
+
+  setLoading(true);
+
+  try {
+
+    if (mode === "login") {
+
+      const response = await loginUser({
+        email: form.email,
+        password: form.password,
+      });
+
+      login(response.data.user, response.data.token);
+
+      showToast({
+        message: "Signed in successfully",
+        variant: "success",
+      });
+
+      navigate("/dashboard");
+
+    } else {
+
+      await registerUser({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+      });
+
+      showToast({
+        message: "Account created successfully",
+        variant: "success",
+      });
+
+      setMode("login");
+
+      setForm({
+        name: "",
+        email: "",
+        password: "",
+      });
+
+    }
+
+  } catch (error) {
+
+    showToast({
+      message:
+        error.response?.data?.message ||
+        "Something went wrong.",
+      variant: "error",
+    });
+
+  } finally {
+
+    setLoading(false);
+
+  }
+}
+  
 
   return (
     <div className="min-h-screen flex flex-col bg-cream dark:bg-forest-950">
@@ -104,6 +182,18 @@ export default function LoginSignup() {
             <Button type="submit" size="lg" loading={loading} className="mt-2 w-full">
               {mode === 'login' ? 'Sign in' : 'Create account'}
             </Button>
+            {mode === "login" && (
+            <Button
+              type="button"
+              className="w-full mt-3"
+              onClick={() => {
+                console.log("Google button clicked");
+                window.location.href = "http://localhost:5000/api/auth/google";
+              }}
+            >
+              Sign in with Google
+            </Button>
+          )}
           </form>
 
           <p className="text-center text-sm text-forest-600 dark:text-forest-400 mt-5">

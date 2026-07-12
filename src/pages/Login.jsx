@@ -1,35 +1,41 @@
 import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../api/reviewService";
+import { useAuth } from "../context/AuthContext";
 
-export default function Login({ navigate, currentPage }) {
-  const [email,    setEmail]    = useState("");
-  const [password, setPassword] = useState("");
-  const [role,     setRole]     = useState("manager");
-  const [showPass, setShowPass] = useState(false);
-  const [error,    setError]    = useState("");
-  const [loading,  setLoading]  = useState(false);
+export default function Login() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    if (!email || !password) {
-      setError("Please fill in both fields.");
-      return;
-    }
+  try {
+    const response = await loginUser({
+      email,
+      password,
+    });
 
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      navigate("dashboard");
-    }, 1200);
-  };
+    login(response.data.user, response.data.token);
+
+    navigate("/dashboard");
+
+  } catch (err) {
+    setError(
+      err.response?.data?.message || "Invalid email or password."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex flex-col min-h-screen bg-stone">
-      <Navbar navigate={navigate} currentPage={currentPage} />
-
+      <Navbar/>
       <main className="flex-1 pt-16 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
 
@@ -162,7 +168,7 @@ export default function Login({ navigate, currentPage }) {
               <p className="text-center text-xs text-gray-400 mt-6">
                 Access is restricted to authorised Trishul Eco-Homestays staff.{" "}
                 <button
-                  onClick={() => navigate("about")}
+                  onClick={() => navigate("/")}
                   className="text-forest-600 hover:underline focus:outline-none"
                 >
                   Learn more
@@ -173,7 +179,7 @@ export default function Login({ navigate, currentPage }) {
         </div>
       </main>
 
-      <Footer navigate={navigate} />
+      <Footer/>
     </div>
   );
 }

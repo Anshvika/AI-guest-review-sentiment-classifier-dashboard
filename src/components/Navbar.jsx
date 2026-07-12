@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink ,useNavigate } from 'react-router-dom'
 import { Sprout, Sun, Moon, UserCircle, Menu, X } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
+import { logoutUser } from '../api/reviewService.js'
 
 const NAV_LINKS = [
   { to: '/', label: 'Home' },
@@ -12,8 +14,19 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const { isDark, toggleTheme } = useTheme()
+  const { logout } = useAuth()
+  const navigate = useNavigate()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const handleLogout = async () => {
+    try {
+      await logoutUser()
+    } catch (error) {
+      console.log(error)
+    }
 
+    logout()
+    navigate('/login')
+  }
   const linkClasses = ({ isActive }) =>
     `text-sm font-medium transition-colors duration-150 px-3 py-2 rounded-lg ${
       isActive
@@ -58,13 +71,13 @@ export default function Navbar() {
           >
             {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
-          <NavLink
-            to="/login"
-            aria-label="Account"
+          <button
+            onClick={handleLogout}
+            aria-label="Logout"
             className="p-1 rounded-full text-forest-600 hover:bg-forest-100 dark:text-forest-300 dark:hover:bg-forest-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-500"
           >
             <UserCircle className="w-7 h-7" />
-          </NavLink>
+          </button>
         </div>
 
         {/* Hamburger Mobile Toggle */}
@@ -93,13 +106,15 @@ export default function Navbar() {
             </NavLink>
           ))}
           <div className="flex items-center justify-between pt-2 mt-2 border-t border-forest-100 dark:border-forest-800">
-            <NavLink
-              to="/login"
-              className="flex items-center gap-2 text-sm font-medium text-forest-700 dark:text-forest-200 px-3 py-2"
-              onClick={() => setMobileOpen(false)}
-            >
-              <UserCircle className="w-5 h-5" /> Account
-            </NavLink>
+            <button
+                onClick={() => {
+                  handleLogout()
+                  setMobileOpen(false)
+                }}
+                className="flex items-center gap-2 text-sm font-medium text-forest-700 dark:text-forest-200 px-3 py-2"
+              >
+                <UserCircle className="w-5 h-5" /> Logout
+              </button>
             <button
               onClick={toggleTheme}
               className="p-2 rounded-lg text-forest-600 hover:bg-forest-100 dark:text-forest-300 dark:hover:bg-forest-800"

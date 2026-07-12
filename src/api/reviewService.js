@@ -14,3 +14,12 @@ export const getDashboardStats = () => api.get("/dashboard/stats");
 
 export const searchReviews = (query) =>
   api.get(`/reviews/search?query=${encodeURIComponent(query)}`);
+
+export const registerUser = (user) =>
+  api.post("/auth/register", user);
+
+export const loginUser = (credentials) =>
+  api.post("/auth/login", credentials);
+
+export const logoutUser = () =>
+  api.post("/auth/logout");

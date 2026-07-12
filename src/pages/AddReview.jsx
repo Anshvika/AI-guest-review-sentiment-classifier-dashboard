@@ -14,28 +14,36 @@ export default function AddReview() {
     date: new Date().toISOString().split("T")[0],
   });
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+ const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  setFormData({
+    ...formData,
+    [name]: name === "rating" ? Number(value) : value,
+  });
+};
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      await createReview(formData);
-      alert("Review Added Successfully");
-      navigate("/");
-    } catch (error) {
-      console.error(error);
-        console.log(error.response);
-        console.log(error.response?.data);
-      alert("Failed to add review");
-    }
-  };
+  try {
+    console.log(formData);
+    console.log(typeof formData.rating);
 
+    await createReview({
+      ...formData,
+      rating: Number(formData.rating),
+    });
+
+    alert("Review Added Successfully");
+    navigate("/");
+  } catch (error) {
+    console.error(error);
+    console.log(error.response);
+    console.log(error.response?.data);
+    alert(error.response?.data?.message || "Failed to add review");
+  }
+};
   return (
     <div className="max-w-3xl mx-auto mt-10 bg-white shadow rounded-xl p-8">
 
@@ -89,11 +97,11 @@ export default function AddReview() {
             onChange={handleChange}
             className="w-full border rounded-lg p-3"
           >
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
+             <option value={1}>1</option>
+              <option value={2}>2</option>
+              <option value={3}>3</option>
+              <option value={4}>4</option>
+              <option value={5}>5</option>
           </select>
         </div>
 

@@ -9,19 +9,20 @@ const {
   deleteReview,
 } = require("../controllers/reviewController");
 const validateReview = require("../middleware/validateReview");
+const authMiddleware = require("../middleware/authMiddleware");
 
 // CRUD Routes
-
+// Public Routes
 router.get("/", getAllReviews);
-
 router.get("/:id", getReviewById);
 
-router.post("/", validateReview, createReview);
+// Protected Routes
+router.post("/", authMiddleware, validateReview, createReview);
 
-router.put("/:id", validateReview, updateReview);
+router.put("/:id", authMiddleware, validateReview, updateReview);
 
-router.patch("/:id", validateReview, updateReview);
+router.patch("/:id", authMiddleware, validateReview, updateReview);
 
-router.delete("/:id", deleteReview);
+router.delete("/:id", authMiddleware, deleteReview);
 
 module.exports = router;
