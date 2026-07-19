@@ -45,7 +45,7 @@ The application uses MongoDB Atlas as its cloud database and follows a modular M
 
 ### Future AI Integration
 
-- Anthropic Claude API
+- Gemini API
 
 ---
 
