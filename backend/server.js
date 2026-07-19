@@ -18,6 +18,8 @@ const authMiddleware = require("./middleware/authMiddleware");
 const notFound = require("./middleware/notFound");
 const { errorHandler } = require("./middleware/errorHandler");
 
+const aiRoutes = require("./routes/aiRoutes");
+
 const app = express();
 
 connectDB();
@@ -38,6 +40,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/sentiment", sentimentRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.get("/api/profile", authMiddleware, (req, res) => {
   res.json({

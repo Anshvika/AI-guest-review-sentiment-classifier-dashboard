@@ -1,153 +1,181 @@
-import { useEffect, useRef, useState } from 'react'
-import { Sparkles, Send, Bot, User } from 'lucide-react'
-import Navbar from '../components/Navbar.jsx'
-import Footer from '../components/Footer.jsx'
-import { Spinner } from '../components/ui'
+import { useEffect, useRef, useState } from "react";
+import { Sparkles, Send, Bot, User } from "lucide-react";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import { Spinner } from "../components/ui";
+import { askAI } from "../api/reviewService";
 
 const SUGGESTED_PROMPTS = [
-  'Draft a polite apology to John who complained about the Wi-Fi.',
-  'Summarize this week\'s negative reviews for Hilltop Mist Homestay.',
-  'Write a thank-you note for a 5-star review about our breakfast.',
-  'What\'s the most common complaint across all properties this month?',
-]
+  "Draft a polite apology to John who complained about the Wi-Fi.",
+  "Summarize this week's negative reviews for Hilltop Mist Homestay.",
+  "Write a thank-you note for a 5-star review.",
+  "What is the most common complaint this month?",
+];
 
-function generateAssistantReply(prompt) {
-  const lower = prompt.toLowerCase()
+function ChatBubble({ role, content }) {
+  const isUser = role === "user";
 
-  if (lower.includes('wifi') || lower.includes('wi-fi')) {
-    return "Here's a draft apology:\n\nHi John,\n\nThank you for flagging the Wi-Fi trouble during your stay — I'm sorry it got in the way of your trip. We've had our technician inspect the router and upgrade the signal booster in that wing. As a small gesture, I'd like to offer 15% off your next visit.\n\nWarm regards,\nThe Team"
-  }
-  if (lower.includes('summar') || lower.includes('hilltop')) {
-    return "Here's a summary of recent negative reviews for Hilltop Mist Homestay:\n\n• 9 mentions of unreliable Wi-Fi, the most common complaint\n• 2 mentions of slow check-in due to staff availability\n• Overall sentiment dipped to 58% positive this week, down from 71%\n\nRecommendation: prioritize the router upgrade — it accounts for most of the recent dissatisfaction."
-  }
-  if (lower.includes('thank') || lower.includes('breakfast') || lower.includes('5-star') || lower.includes('5 star')) {
-    return "Here's a thank-you draft:\n\nDear Guest,\n\nThank you so much for the wonderful review! We're thrilled the breakfast spread stood out — our team puts a lot of love into sourcing everything locally. It would mean the world if you shared a photo with us next time you visit!\n\nWarmly,\nThe Team"
-  }
-  if (lower.includes('common complaint') || lower.includes('this month')) {
-    return "Looking across all properties this month, the most common complaint by volume is Wi-Fi reliability (9 mentions), followed by pre-arrival room cleaning (4 mentions) and mosquito protection at the farmstay (5 mentions). Addressing connectivity first would likely have the biggest impact on overall sentiment."
-  }
-  return "Thanks for the prompt! Based on recent guest sentiment data, I'd recommend acknowledging the specific concern directly, offering a concrete fix or gesture, and keeping the tone warm and personal — guests respond well when responses feel handwritten rather than templated. Want me to draft something specific?"
-}
-
-function ChatBubble({ role, content, streaming }) {
-  const isUser = role === 'user'
   return (
-    <div className={`flex gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+    <div
+      className={`flex gap-3 ${
+        isUser ? "flex-row-reverse" : "flex-row"
+      }`}
+    >
       <span
-        className={`flex items-center justify-center w-8 h-8 rounded-full shrink-0 ${
+        className={`flex items-center justify-center w-10 h-10 rounded-full shrink-0 ${
           isUser
-            ? 'bg-clay-500 text-cream'
-            : 'bg-forest-700 dark:bg-forest-400 text-cream dark:text-forest-950'
+            ? "bg-green-600 text-white"
+            : "bg-forest-700 dark:bg-green-600 text-white"
         }`}
       >
-        {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+        {isUser ? (
+          <User className="w-5 h-5" />
+        ) : (
+          <Bot className="w-5 h-5" />
+        )}
       </span>
+
       <div
-        className={`max-w-[80%] sm:max-w-[70%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${
+        className={`max-w-[75%] rounded-2xl px-4 py-3 whitespace-pre-wrap shadow ${
           isUser
-            ? 'bg-clay-500 text-cream rounded-tr-sm'
-            : 'bg-white dark:bg-forest-900 border border-forest-100 dark:border-forest-800 text-forest-800 dark:text-forest-200 rounded-tl-sm'
+            ? "bg-green-600 text-white"
+            : "bg-white text-gray-900 border border-gray-200 dark:bg-[#17352A] dark:border-gray-700 dark:text-white"
         }`}
       >
         {content}
-        {streaming && (
-          <span className="inline-block w-1.5 h-4 bg-forest-500 ml-0.5 animate-pulse-soft align-middle" />
-        )}
       </div>
     </div>
-  )
+  );
 }
 
 export default function AIFeature() {
   const [messages, setMessages] = useState([
     {
-      role: 'assistant',
+      role: "assistant",
       content:
-        "Hi! I'm your Guest Review Assistant. Ask me to draft a reply, summarize feedback, or spot trends across your properties.",
+        "Hello! I am your AI Guest Review Assistant. Ask me to summarize reviews, draft replies, or analyze guest feedback.",
     },
-  ])
-  const [input, setInput] = useState('')
-  const [isStreaming, setIsStreaming] = useState(false)
-  const scrollRef = useRef(null)
+  ]);
+
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const scrollRef = useRef(null);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
-  }, [messages])
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages]);
 
-  function sendMessage(promptText) {
-    const text = (promptText ?? input).trim()
-    if (!text || isStreaming) return
+  async function sendMessage(promptText) {
+    const prompt = (promptText || input).trim();
 
-    setMessages((prev) => [...prev, { role: 'user', content: text }])
-    setInput('')
-    setIsStreaming(true)
+    if (!prompt || loading) return;
 
-    const fullReply = generateAssistantReply(text)
-    setMessages((prev) => [...prev, { role: 'assistant', content: '' }])
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "user",
+        content: prompt,
+      },
+    ]);
 
-    let i = 0
-    const interval = setInterval(() => {
-      i += 2
-      setMessages((prev) => {
-        const next = [...prev]
-        next[next.length - 1] = { role: 'assistant', content: fullReply.slice(0, i) }
-        return next
-      })
-      if (i >= fullReply.length) {
-        clearInterval(interval)
-        setIsStreaming(false)
-      }
-    }, 12)
+    setInput("");
+    setLoading(true);
+
+    try {
+      const response = await askAI(prompt);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: response.data.reply,
+        },
+      ]);
+    } catch (error) {
+      console.error(error);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "Unable to contact AI service at the moment. Please try again.",
+        },
+      ]);
+    }
+
+    setLoading(false);
   }
 
   function handleSubmit(e) {
-    e.preventDefault()
-    sendMessage()
+    e.preventDefault();
+    sendMessage();
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-cream dark:bg-forest-950">
-      <Navbar />
-      <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full flex flex-col">
-        <div className="mb-6">
-          <h1 className="font-display text-2xl sm:text-3xl font-bold text-forest-950 dark:text-cream flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-forest-500" />
-            AI Guest Review Assistant
-          </h1>
-          <p className="mt-1 text-forest-600 dark:text-forest-400">
-            Ask for response drafts, summaries, or sentiment trends in plain language.
-          </p>
-        </div>
+    <div className="min-h-screen flex flex-col bg-cream dark:bg-[#0F1F19]">
 
-        <div className="flex-1 flex flex-col rounded-2xl border border-forest-100 dark:border-forest-800 bg-white dark:bg-forest-900 shadow-soft overflow-hidden">
+      <Navbar />
+
+      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-10">
+
+        <h1 className="text-3xl font-bold flex items-center gap-2 text-gray-900 dark:text-white">
+          <Sparkles className="text-green-500" />
+          AI Guest Review Assistant
+        </h1>
+
+        <p className="text-gray-600 dark:text-gray-300 mb-6">
+          Ask AI to summarize reviews, detect trends or generate guest replies.
+        </p>
+
+        <div className="bg-white dark:bg-[#10261D] rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 flex flex-col h-[650px]">
+
           <div
             ref={scrollRef}
-            className="flex-1 overflow-y-auto scrollbar-thin px-4 sm:px-6 py-6 flex flex-col gap-5 max-h-[55vh] min-h-[320px]"
+            className="flex-1 overflow-y-auto p-6 space-y-5"
           >
-            {messages.map((m, i) => (
+            {messages.map((message, index) => (
               <ChatBubble
-                key={i}
-                role={m.role}
-                content={m.content}
-                streaming={isStreaming && i === messages.length - 1 && m.role === 'assistant'}
+                key={index}
+                role={message.role}
+                content={message.content}
               />
             ))}
-            {isStreaming && messages[messages.length - 1]?.content === '' && (
-              <div className="flex items-center gap-2 ml-11 text-forest-400 dark:text-forest-500">
+
+            {loading && (
+              <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
                 <Spinner size="sm" />
+                <span>AI is thinking...</span>
               </div>
             )}
           </div>
 
-          {messages.length <= 1 && (
-            <div className="px-4 sm:px-6 pb-4 flex flex-wrap gap-2">
-              {SUGGESTED_PROMPTS.map((p) => (
+          {messages.length === 1 && (
+            <div className="px-6 pb-4 flex flex-wrap gap-3">
+              {SUGGESTED_PROMPTS.map((prompt) => (
                 <button
-                  key={p}
-                  onClick={() => sendMessage(p)}
-                  className="text-xs text-left px-3 py-2 rounded-xl bg-forest-50 dark:bg-forest-800/60 text-forest-700 dark:text-forest-300 hover:bg-forest-100 dark:hover:bg-forest-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-500"
+                  key={prompt}
+                  onClick={() => sendMessage(prompt)}
+                  className="
+                    px-4
+                    py-2
+                    rounded-xl
+                    text-sm
+                    font-medium
+                    bg-green-100
+                    text-green-900
+                    hover:bg-green-200
+                    dark:bg-green-800
+                    dark:text-white
+                    dark:hover:bg-green-700
+                    transition-all
+                  "
                 >
-                  {p}
+                  {prompt}
                 </button>
               ))}
             </div>
@@ -155,27 +183,59 @@ export default function AIFeature() {
 
           <form
             onSubmit={handleSubmit}
-            className="flex items-center gap-2 border-t border-forest-100 dark:border-forest-800 p-3 sm:p-4"
+            className="border-t border-gray-200 dark:border-gray-700 p-4 flex gap-3"
           >
             <input
+              className="
+                flex-1
+                rounded-xl
+                border
+                border-gray-300
+                dark:border-gray-600
+                bg-white
+                dark:bg-[#17352A]
+                text-gray-900
+                dark:text-white
+                placeholder:text-gray-500
+                dark:placeholder:text-gray-400
+                px-4
+                py-3
+                focus:outline-none
+                focus:ring-2
+                focus:ring-green-500
+              "
+              placeholder="Ask anything about your guest reviews..."
               value={input}
+              disabled={loading}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask the assistant anything about your reviews…"
-              disabled={isStreaming}
-              className="flex-1 rounded-xl border border-forest-200 dark:border-forest-700 bg-cream dark:bg-forest-950/60 px-4 py-2.5 text-sm text-forest-950 dark:text-cream placeholder:text-forest-400 dark:placeholder:text-forest-500 focus:outline-none focus:ring-2 focus:ring-forest-500 disabled:opacity-60"
             />
+
             <button
               type="submit"
-              disabled={isStreaming || !input.trim()}
-              aria-label="Send message"
-              className="flex items-center justify-center w-10 h-10 rounded-xl bg-forest-600 dark:bg-forest-400 text-cream dark:text-forest-950 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-forest-700 dark:hover:bg-forest-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-forest-950 shrink-0"
+              disabled={loading || !input.trim()}
+              className="
+                bg-green-600
+                hover:bg-green-700
+                disabled:bg-gray-400
+                text-white
+                rounded-xl
+                px-5
+                flex
+                items-center
+                justify-center
+                transition-all
+              "
             >
-              <Send className="w-4 h-4" />
+              <Send size={18} />
             </button>
           </form>
+
         </div>
+
       </main>
+
       <Footer />
+
     </div>
-  )
+  );
 }

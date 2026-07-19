@@ -23,3 +23,8 @@ export const loginUser = (credentials) =>
 
 export const logoutUser = () =>
   api.post("/auth/logout");
+
+export const askAI = (prompt) =>
+  api.post("/ai", {
+    prompt,
+  });
