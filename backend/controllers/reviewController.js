@@ -6,7 +6,9 @@ const ApiError = require("../middleware/ApiError");
 // GET /api/reviews
 async function getAllReviews(req, res, next) {
     try {
-        const reviews = await Review.find();
+        const reviews = await Review.find({
+            user:req.user.id
+        });
         res.status(200).json({
             success: true,
             count: reviews.length,
@@ -20,7 +22,10 @@ async function getAllReviews(req, res, next) {
 // GET /api/reviews/:id
 async function getReviewById(req, res, next) {
     try {
-        const review = await Review.findById(req.params.id);
+        const review = await Review.findById({
+            _id:req.params.id,
+            user:req.user.id
+    });
         if (!review)
         throw new ApiError(404, "Review not found");
         res.status(200).json({
@@ -52,7 +57,8 @@ async function createReview(req, res, next) {
             review,
             sentiment,
             rating,
-            date: new Date()
+            date: new Date(),
+            user:req.user.id
         });
 
         res.status(201).json({
@@ -72,7 +78,10 @@ async function updateReview(req, res, next) {
     try {
 
     const updatedReview = await Review.findByIdAndUpdate(
-        req.params.id,
+        {
+        _id:req.params.id,
+        user:req.user.id
+        },
         req.body,
         { 
             new: true,
@@ -97,7 +106,10 @@ if (!updatedReview)
 // DELETE /api/reviews/:id
 async function deleteReview(req, res, next) {
 try {
-    const deletedReview = await Review.findByIdAndDelete(req.params.id);
+    const deletedReview = await Review.findByIdAndDelete({
+        _id:req.params.id,
+        user:req.user.id
+});
     if (!deletedReview)
         throw new ApiError(404, "Review not found");
         res.status(204).send();

@@ -12,17 +12,14 @@ const validateReview = require("../middleware/validateReview");
 const authMiddleware = require("../middleware/authMiddleware");
 
 // CRUD Routes
-// Public Routes
-router.get("/", getAllReviews);
-router.get("/:id", getReviewById);
 
 // Protected Routes
+router.get("/", authMiddleware, getAllReviews);
+router.get("/:id", authMiddleware, getReviewById);
+
 router.post("/", authMiddleware, validateReview, createReview);
-
 router.put("/:id", authMiddleware, validateReview, updateReview);
-
 router.patch("/:id", authMiddleware, validateReview, updateReview);
-
 router.delete("/:id", authMiddleware, deleteReview);
 
 module.exports = router;

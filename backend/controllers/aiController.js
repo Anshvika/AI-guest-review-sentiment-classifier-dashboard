@@ -17,7 +17,9 @@ exports.askAI = async (req, res) => {
     }
 
     // Fetch reviews
-    const reviews = await Review.find().sort({ createdAt: -1 });
+    const reviews = await Review.find({
+      user:req.user.id
+    }).sort({createdAt: -1 });
 
     if (reviews.length === 0) {
       return res.status(200).json({
@@ -39,6 +41,8 @@ Review: ${review.review}
       )
       .join("\n--------------------------------\n");
 
+    const lowerPrompt = prompt.toLowerCase();
+
     const finalPrompt = `
 You are an AI Guest Review Assistant.
 
@@ -59,7 +63,7 @@ Instructions:
     try {
       // Try Gemini first
       const result = await ai.models.generateContent({
-        model: "gemini-2.0-flash",
+        model: "gemini-flash-latest",
         contents: finalPrompt,
       });
 
@@ -67,12 +71,10 @@ Instructions:
         success: true,
         reply: result.text,
       });
-
-    } catch (geminiError) {
-
-      console.log("Gemini unavailable. Using local AI fallback.");
-
-      const lowerPrompt = prompt.toLowerCase();
+    } catch (error) {
+      console.error("Gemini Error:");
+      console.error(error);
+      // Fallback to local review analysis if Gemini fails
 
       // -------------------------------
       // Best Hotel
@@ -185,7 +187,6 @@ Negative: ${negative}
 
 Gemini AI is currently unavailable, so this response was generated using the review database.`,
       });
-
     }
 
   } catch (error) {

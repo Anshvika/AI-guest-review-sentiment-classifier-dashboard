@@ -5,8 +5,9 @@ const {
   getDashboardStats,
 } = require("../controllers/dashboardController");
 
-// Dashboard Statistics
+const authMiddleware = require("../middleware/authMiddleware");
 
-router.get("/stats", getDashboardStats);
+// Dashboard Statistics
+router.get("/stats", authMiddleware, getDashboardStats);
 
 module.exports = router;
