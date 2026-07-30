@@ -1,6 +1,9 @@
 const { GoogleGenAI } = require("@google/genai");
 const Review = require("../models/Review");
 
+exports.askAI = async (req, res) => {
+    console.log("AI endpoint hit");
+};
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });

@@ -25,6 +25,6 @@ export const logoutUser = () =>
   api.post("/auth/logout");
 
 export const askAI = (prompt) =>
-  api.post("/ai", {
+  api.post("/ai/ask", {
     prompt,
   });
