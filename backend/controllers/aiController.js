@@ -1,5 +1,5 @@
 const { GoogleGenAI } = require("@google/genai");
-const Review = require("../models/Review");
+const Review = require("../models/review");
 
 exports.askAI = async (req, res) => {
     console.log("AI endpoint hit");

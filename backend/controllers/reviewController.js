@@ -1,4 +1,4 @@
-const Review = require("../models/Review");
+const Review = require("../models/review");
 const ApiError = require("../middleware/ApiError");
 
 //const VALID_SENTIMENTS = ["Positive", "Neutral", "Negative"];
