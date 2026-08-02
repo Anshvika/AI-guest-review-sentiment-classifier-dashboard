@@ -39,7 +39,7 @@ router.get(
   "/google/callback",
   passport.authenticate("google", {
     session: false,
-    failureRedirect: "http://localhost:5173/login",
+    failureRedirect: "https://ai-guest-review-sentiment-classifie.vercel.app/login",
   }),
   async (req, res) => {
      console.log("Google callback executed");
@@ -58,7 +58,7 @@ router.get(
     );
 
     res.redirect(
-      `http://localhost:5173/login?token=${token}&name=${encodeURIComponent(
+      `https://ai-guest-review-sentiment-classifie.vercel.app/login?token=${token}&name=${encodeURIComponent(
         user.name
       )}&email=${encodeURIComponent(user.email)}`
     );

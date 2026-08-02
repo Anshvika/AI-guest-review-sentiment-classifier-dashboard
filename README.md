@@ -166,7 +166,7 @@ npm start
 Backend runs on
 
 ```
-http://localhost:5000
+https://ai-guest-review-backend.onrender.com/
 ```
 
 ---
@@ -188,7 +188,7 @@ npm run dev
 Frontend runs on
 
 ```
-http://localhost:5173
+https://ai-guest-review-sentiment-classifie.vercel.app/login
 ```
 
 ---
