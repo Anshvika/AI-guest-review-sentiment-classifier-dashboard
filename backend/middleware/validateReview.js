@@ -1,4 +1,4 @@
-const ApiError = require("./ApiError");
+const ApiError = require("./apiError");
 
 const VALID_SENTIMENTS = [
   "Positive",
