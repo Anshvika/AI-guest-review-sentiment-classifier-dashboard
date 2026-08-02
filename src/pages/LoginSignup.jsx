@@ -188,7 +188,7 @@ async function handleSubmit(e) {
               className="w-full mt-3"
               onClick={() => {
                 console.log("Google button clicked");
-                window.location.href = "http://ai-guest-review-backend.onrender.com/auth/google";
+                window.location.href =  `${import.meta.env.VITE_API_URL}/api/auth/google`;
               }}
             >
               Sign in with Google
