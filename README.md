@@ -2,118 +2,147 @@
 
 ## 📝 Description
 
-The AI Guest Review Sentiment Classifier Dashboard is a full-stack web application that helps hospitality businesses analyze customer feedback. It provides a centralized dashboard for viewing guest reviews, filtering them by sentiment, monitoring review statistics, and managing reviews through complete CRUD operations.
+The AI Guest Review Sentiment Classifier Dashboard is a full-stack MERN application that helps hospitality businesses analyze customer feedback using AI-powered insights.
 
-The application uses MongoDB Atlas as its cloud database and follows a modular MERN architecture. Future development will integrate an AI model to automatically classify the sentiment of guest reviews.
+The application allows users to register, log in securely, manage their own guest reviews, visualize review statistics through a dashboard, and interact with an AI assistant powered by the Google Gemini API.
 
----
-
-## ✨ Features
-
-- View all guest reviews
-- Create, update and delete reviews
-- Search reviews by guest name, hotel or review text
-- Filter reviews by sentiment
-- Dashboard showing:
-  - Total Reviews
-  - Positive Reviews
-  - Neutral Reviews
-  - Negative Reviews
-  - Average Rating
-- REST API built with Express
-- MongoDB Atlas database integration using Mongoose
+Each authenticated user can only access and manage their own reviews, ensuring complete data isolation.
 
 ---
 
-## 🛠 Tech Stack
+# 🌐 Live Application
 
 ### Frontend
+
+https://ai-guest-review-sentiment-classifie.vercel.app/
+
+### Backend
+
+https://ai-guest-review-backend.onrender.com/
+
+---
+
+# ✨ Features
+
+## Authentication
+
+- User Registration
+- User Login
+- JWT Authentication
+- Protected Routes
+- User-specific data
+
+## Review Management
+
+- Create Review
+- Read Reviews
+- Update Review
+- Delete Review
+- Search Reviews
+- Filter by Sentiment
+
+## Dashboard
+
+Displays:
+
+- Total Reviews
+- Positive Reviews
+- Neutral Reviews
+- Negative Reviews
+- Average Rating
+
+## AI Assistant
+
+Powered by Google Gemini API.
+
+Users can ask questions like:
+
+- Which hotel has the best reviews?
+- Summarize negative reviews.
+- Give recommendations.
+- Review statistics.
+- Review analysis.
+
+If the Gemini API is unavailable, the application automatically falls back to local review analysis.
+
+---
+
+# 🛠 Tech Stack
+
+## Frontend
 
 - React.js
 - Vite
 - Tailwind CSS
+- Axios
+- React Router
 
-### Backend
+## Backend
 
 - Node.js
 - Express.js
+- JWT Authentication
+- bcrypt.js
 
-### Database
+## Database
 
 - MongoDB Atlas
 - Mongoose ODM
 
-### Future AI Integration
+## AI
 
-- Gemini API
+- Google Gemini API
+
+## Deployment
+
+### Frontend
+
+- Vercel
+
+### Backend
+
+- Render
 
 ---
 
-## 📂 Project Structure
+# 📂 Project Structure
 
 ```
 AI-guest-review-sentiment-classifier-dashboard
 │
 ├── backend
 │   ├── config
-│   │   └── db.js
 │   ├── controllers
-│   │   └── reviewController.js
 │   ├── middleware
 │   ├── models
-│   │   └── Review.js
 │   ├── routes
-│   │   └── reviewRoutes.js
+│   ├── utils
 │   ├── .env.example
 │   ├── package.json
-│   ├── server.js
+│   └── server.js
 │
 ├── images
-│   └── W5_SchemaDiagram_TBI-26100853.png
-│
-├── public
 │
 ├── src
 │   ├── api
-│   │   ├── api.js
-│   │   └── reviewService.js
 │   ├── components
-│   │   ├── ui
-│   │   ├── Footer.jsx
-│   │   ├── Navbar.jsx
-│   │   └── ReviewCard.jsx
 │   ├── context
-│   ├── data
-│   │   └── mockData.js
 │   ├── pages
-│   │   ├── Dashboard.jsx
-│   │   └── DetailView.jsx
+│   ├── services
 │   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
+│   └── main.jsx
 │
+├── public
 ├── package.json
-├── package-lock.json
 ├── vite.config.js
-├── tailwind.config.js
-├── postcss.config.js
-├── .gitignore
 └── README.md
 ```
 
 ---
 
-## 🚀 Getting Started
+# 🚀 Getting Started
 
-### Prerequisites
-
-- Node.js (v18+)
-- npm
-- MongoDB Atlas account
-
----
-
-### Clone Repository
+## Clone Repository
 
 ```bash
 git clone https://github.com/Anshvika/AI-guest-review-sentiment-classifier-dashboard.git
@@ -125,9 +154,7 @@ cd AI-guest-review-sentiment-classifier-dashboard
 
 ---
 
-## Backend Setup
-
-From the project root, navigate to the backend directory:
+# Backend Setup
 
 Navigate to backend
 
@@ -147,14 +174,10 @@ Create a `.env` file
 PORT=5000
 
 MONGO_URI=your_mongodb_connection_string
-```
 
-Example
+JWT_SECRET=your_jwt_secret
 
-```env
-PORT=5000
-
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/guest_reviews_db
+GEMINI_API_KEY=your_gemini_api_key
 ```
 
 Start backend
@@ -163,15 +186,15 @@ Start backend
 npm start
 ```
 
-Backend runs on
+Runs on
 
 ```
-https://ai-guest-review-backend.onrender.com/
+http://localhost:5000
 ```
 
 ---
 
-## Frontend Setup
+# Frontend Setup
 
 Install dependencies
 
@@ -185,89 +208,161 @@ Run frontend
 npm run dev
 ```
 
-Frontend runs on
+Runs on
 
 ```
-https://ai-guest-review-sentiment-classifie.vercel.app/login
+http://localhost:5173
 ```
 
 ---
 
-## REST API Endpoints
+# REST API Endpoints
 
-### Reviews
+## Authentication
 
 | Method | Endpoint |
-|---------|----------|
+|----------|----------------|
+| POST | /api/auth/register |
+| POST | /api/auth/login |
+
+---
+
+## Reviews
+
+| Method | Endpoint |
+|----------|----------------|
 | GET | /api/reviews |
 | GET | /api/reviews/:id |
 | POST | /api/reviews |
 | PUT | /api/reviews/:id |
+| PATCH | /api/reviews/:id |
 | DELETE | /api/reviews/:id |
 
 ---
 
-### Dashboard
+## Dashboard
 
 | Method | Endpoint |
-|---------|----------|
+|----------|----------------|
 | GET | /api/dashboard/stats |
 
 ---
 
-### Sentiment
+## AI
 
 | Method | Endpoint |
-|---------|----------|
+|----------|----------------|
+| POST | /api/ai |
+
+---
+
+## Sentiment
+
+| Method | Endpoint |
+|----------|----------------|
 | GET | /api/sentiment |
 | GET | /api/sentiment/search?q=value |
 | GET | /api/sentiment/:sentiment |
 
 ---
 
-## Database
+# Database
 
-This project uses **MongoDB Atlas** as the cloud database.
+The application uses **MongoDB Atlas** as its cloud database.
 
-### Why MongoDB?
+Each review is associated with the authenticated user.
 
-- Flexible document-based schema
-- Easy integration with Node.js
-- Scalable cloud database
-- Uses Mongoose ODM for validation and CRUD operations
+Users can only:
+
+- View their own reviews
+- Edit their own reviews
+- Delete their own reviews
+- Generate AI insights from their own reviews
 
 ---
 
-## Database Schema
-
-The application stores guest reviews in MongoDB collection.
+# Database Schema
 
 ![Database Schema](./images/W5_SchemaDiagram_TBI-26100853.png)
 
-## Architecture
+---
+
+# Architecture
 
 ```
 React Frontend
-      │
-      │ REST API
-      ▼
-Express Server
-      │
+        │
+        │
+        ▼
+JWT Authentication
+        │
+        ▼
+Express API
+        │
 Controllers
-      │
+        │
 Mongoose Models
-      │
+        │
 MongoDB Atlas
+        │
+Google Gemini API
 ```
 
 ---
 
-## Future Improvements
+# Deployment
 
-- AI-powered sentiment prediction using Anthropic Claude API
-- Interactive analytics charts
-- User authentication
-- Admin dashboard
-- Review export functionality
+## Frontend
+
+Deployed on **Vercel**
+
+https://ai-guest-review-sentiment-classifie.vercel.app/
 
 ---
+
+## Backend
+
+Deployed on **Render**
+
+https://ai-guest-review-backend.onrender.com/
+
+---
+
+# Known Limitations (Free Tier)
+
+This project uses free-tier hosting services.
+
+### Render
+
+- Backend spins down after approximately 15 minutes of inactivity.
+- The first request after inactivity may take **30–60 seconds** while the server wakes up.
+
+### MongoDB Atlas
+
+- Uses the free shared cluster.
+
+### Google Gemini API
+
+- Uses the free API tier.
+- Subject to daily request limits and rate limits.
+
+---
+
+# Future Improvements
+
+- Charts and analytics dashboard
+- Review export (PDF/CSV)
+- Admin dashboard
+- Email verification
+- Password reset
+- OAuth login (Google)
+
+---
+
+# Author
+
+**Anshvika**
+
+GitHub:
+
+https://github.com/Anshvika/AI-guest-review-sentiment-classifier-dashboard
