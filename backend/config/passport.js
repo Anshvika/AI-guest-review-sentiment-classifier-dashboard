@@ -7,7 +7,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://ai-guest-review-backend.onrender.com/auth/google/callback",
+      callbackURL: "https://ai-guest-review-backend.onrender.com/api/auth/google/callback",
     },
 
     async (accessToken, refreshToken, profile, done) => {
